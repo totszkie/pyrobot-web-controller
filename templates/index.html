@@ -3,54 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Instant Control Panel</title>
+    <title>PYROBOT Control</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* GLOBAL SETTINGS */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            background-image: radial-gradient(circle at center, #2c2c2c 0%, #0d0d0d 100%);
+            margin: 0;
+            color: white;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100dvh;
+            overflow: hidden;
+            padding: 5px; /* Minimal padding for mobile edges */
+        }
+
+        /* MAIN CONTAINER */
+        .main-container {
+            display: flex;
+            flex-direction: column; 
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            padding: 15px;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            align-items: center;
+        }
+
+        /* LANDSCAPE OPTIMIZATION */
+        @media (orientation: landscape) {
+            .main-container {
+                flex-direction: row;
+                max-width: 96vw; /* Take more width */
+                max-height: 95vh; /* STRICT HEIGHT LIMIT to fit phone screens */
+                padding: 10px 20px;
+                gap: 20px;
+                border-radius: 15px;
+            }
+
+            .video-window {
+                flex: 2;
+                height: 100% !important;
+                max-height: 85vh; /* Ensure video doesn't push panel too tall */
+            }
+
+            .controls-wrapper {
+                flex: 1;
+                /* Adaptive sizing: Small on mobile, large on desktop */
+                --btn-size: clamp(45px, 12vh, 130px); 
+                gap: 10px !important; /* Tighter gap for landscape */
+            }
+        }
+
+        /* PORTRAIT DEFAULT */
+        @media (orientation: portrait) {
+            .controls-wrapper {
+                --btn-size: clamp(60px, 16vw, 75px);
+            }
+        }
+
+        /* VIDEO WINDOW */
+        .video-window {
+            width: 100%;
+            background: #000;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 1.5px solid #333;
+        }
+
+        .feed-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: #000;
+        }
+
+        .label {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(255, 59, 48, 0.9);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* CONTROLS WRAPPER */
+        .controls-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .action-buttons-container {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* BUTTON DESIGN */
+        .btn {
+            background: linear-gradient(145deg, #444, #222);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+        }
+
+        .round {
+            width: var(--btn-size);
+            height: var(--btn-size);
+            border-radius: 50%;
+            font-size: calc(var(--btn-size) * 0.45);
+        }
+
+        /* D-PAD GRID */
+        .dpad {
+            display: grid;
+            grid-template-columns: repeat(3, var(--btn-size));
+            grid-template-rows: repeat(3, var(--btn-size));
+            gap: 6px;
+            background: rgba(0,0,0,0.25);
+            padding: 8px;
+            border-radius: 15px;
+        }
+
+        .dpad .btn {
+            width: var(--btn-size);
+            height: var(--btn-size);
+            border-radius: 10px;
+            font-size: calc(var(--btn-size) * 0.4);
+        }
+
+        /* DIRECTIONS */
+        .up-left i { transform: rotate(-45deg); }
+        .up-right i { transform: rotate(45deg); }
+        .down-left i { transform: rotate(-135deg); }
+        .down-right i { transform: rotate(135deg); }
+
+        /* INTERACTION STATES */
+        .btn.active-press {
+            background: #007aff !important;
+            transform: scale(0.92);
+            box-shadow: 0 0 15px rgba(0, 122, 255, 0.6);
+        }
+
+        .active-light { background: linear-gradient(145deg, #ffcc00, #ff9500) !important; color: #000 !important; }
+        .active-horn { background: linear-gradient(145deg, #ff3b30, #ff2d55) !important; }
+
+        .dpad-center-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.1;
+            color: white;
+            font-size: calc(var(--btn-size) * 0.4);
+        }
+    </style>
 </head>
 <body>
-    <div class="main-container">
-        <h1 class="main-title">PYROBOT</h1>
 
+    <div class="main-container">
         <div class="video-window">
-            <div class="video-placeholder">
-                <img src="{{ url_for('video_feed') }}" alt="" class="feed-img">
-                <div class="label">LIVE FEED</div>
-            </div>
+            <img src="{{ url_for('video_feed') }}" alt="Robot Feed" class="feed-img">
+            <div class="label">Live Stream</div>
         </div>
 
         <div class="controls-wrapper">
-            <div class="dpad-container">
-                <div class="dpad">
-    <button class="btn diag up-left" onpointerdown="this.classList.add('active-press'); send('upleft', 'start')" onpointerup="this.classList.remove('active-press'); send('upleft', 'stop')" onpointerleave="this.classList.remove('active-press'); send('upleft', 'stop')">
-        <i class="fas fa-caret-up"></i>
-    </button>
-    <button class="btn up" onpointerdown="this.classList.add('active-press'); send('forward', 'start')" onpointerup="this.classList.remove('active-press'); send('forward', 'stop')" onpointerleave="this.classList.remove('active-press'); send('forward', 'stop')">
-        <i class="fas fa-caret-up"></i>
-    </button>
-    <button class="btn diag up-right" onpointerdown="this.classList.add('active-press'); send('upright', 'start')" onpointerup="this.classList.remove('active-press'); send('upright', 'stop')" onpointerleave="this.classList.remove('active-press'); send('upright', 'stop')">
-        <i class="fas fa-caret-up"></i>
-    </button>
-
-    <button class="btn left" onpointerdown="this.classList.add('active-press'); send('left', 'start')" onpointerup="this.classList.remove('active-press'); send('left', 'stop')" onpointerleave="this.classList.remove('active-press'); send('left', 'stop')">
-        <i class="fas fa-caret-left"></i>
-    </button>
-    <div class="dpad-center-logo"><i class="fas fa-circle"></i></div>
-    <button class="btn right" onpointerdown="this.classList.add('active-press'); send('right', 'start')" onpointerup="this.classList.remove('active-press'); send('right', 'stop')" onpointerleave="this.classList.remove('active-press'); send('right', 'stop')">
-        <i class="fas fa-caret-right"></i>
-    </button>
-
-    <button class="btn diag down-left" onpointerdown="this.classList.add('active-press'); send('downleft', 'start')" onpointerup="this.classList.remove('active-press'); send('downleft', 'stop')" onpointerleave="this.classList.remove('active-press'); send('downleft', 'stop')">
-        <i class="fas fa-caret-down"></i>
-    </button>
-    <button class="btn down" onpointerdown="this.classList.add('active-press'); send('backward', 'start')" onpointerup="this.classList.remove('active-press'); send('backward', 'stop')" onpointerleave="this.classList.remove('active-press'); send('backward', 'stop')">
-        <i class="fas fa-caret-down"></i>
-    </button>
-    <button class="btn diag down-right" onpointerdown="this.classList.add('active-press'); send('downright', 'start')" onpointerup="this.classList.remove('active-press'); send('downright', 'stop')" onpointerleave="this.classList.remove('active-press'); send('downright', 'stop')">
-        <i class="fas fa-caret-down"></i>
-    </button>
-</div>
-            </div>
-
             <div class="action-buttons-container">
                 <button class="btn round horn-toggle" id="hornBtn" onclick="toggleHorn()">
                     <i id="hornIcon" class="fas fa-bullhorn"></i>
@@ -59,15 +210,76 @@
                     <i id="lightIcon" class="far fa-lightbulb"></i>
                 </button>
             </div>
+
+            <div class="dpad" id="dpad" 
+                 onpointerdown="startSwipe(event)" 
+                 onpointermove="handleSwipe(event)" 
+                 onpointerup="stopSwipe()" 
+                 onpointerleave="stopSwipe()">
+                
+                <button class="btn diag up-left" data-action="upleft"><i class="fas fa-chevron-up"></i></button>
+                <button class="btn up" data-action="forward"><i class="fas fa-chevron-up"></i></button>
+                <button class="btn diag up-right" data-action="upright"><i class="fas fa-chevron-up"></i></button>
+
+                <button class="btn left" data-action="left"><i class="fas fa-chevron-left"></i></button>
+                <div class="dpad-center-logo"><i class="fas fa-robot"></i></div>
+                <button class="btn right" data-action="right"><i class="fas fa-chevron-right"></i></button>
+
+                <button class="btn diag down-left" data-action="downleft"><i class="fas fa-chevron-up"></i></button>
+                <button class="btn down" data-action="backward"><i class="fas fa-chevron-down"></i></button>
+                <button class="btn diag down-right" data-action="downright"><i class="fas fa-chevron-up"></i></button>
+            </div>
         </div>
     </div>
 
     <script>
         let lightOn = false;
         let hornOn = false;
+        let currentAction = null; 
+        let isMouseDown = false; 
+
         function send(action, state) {
             fetch(`/control/${action}/${state}`, { method: 'GET', keepalive: true });
         }
+
+        function startSwipe(event) {
+            isMouseDown = true;
+            handleSwipe(event);
+        }
+
+        function handleSwipe(event) {
+            if (!isMouseDown) return;
+            const x = event.clientX || (event.touches ? event.touches[0].clientX : 0);
+            const y = event.clientY || (event.touches ? event.touches[0].clientY : 0);
+            const target = document.elementFromPoint(x, y);
+            const button = target ? target.closest('.btn[data-action]') : null;
+
+            if (button) {
+                const action = button.getAttribute('data-action');
+                if (currentAction !== action) {
+                    if (currentAction) {
+                        stopSwipe();
+                        isMouseDown = true; 
+                    }
+                    currentAction = action;
+                    button.classList.add('active-press');
+                    send(action, 'start');
+                }
+            } else {
+                stopSwipe();
+                isMouseDown = true; 
+            }
+        }
+
+        function stopSwipe() {
+            isMouseDown = false; 
+            if (currentAction) {
+                document.querySelectorAll('.btn').forEach(b => b.classList.remove('active-press'));
+                send(currentAction, 'stop');
+                currentAction = null;
+            }
+        }
+
         function toggleLight() {
             lightOn = !lightOn;
             const btn = document.getElementById('lightBtn');
@@ -82,6 +294,7 @@
                 send('light', 'off');
             }
         }
+
         function toggleHorn() {
             hornOn = !hornOn;
             const btn = document.getElementById('hornBtn');
