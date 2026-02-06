@@ -5,11 +5,10 @@ import time
 
 app = Flask(__name__)
 
-# --- ARDUINO SERIAL CONFIGURATION ---
 PORT = 'COM5' 
 try:
     ser = serial.Serial(PORT, 9600, timeout=0.1)
-    time.sleep(2)  # Wait for Arduino to reboot
+    time.sleep(2)
     print(f"Connected to Arduino on {PORT}")
 except Exception as e:
     print(f"Serial Error: {e}")

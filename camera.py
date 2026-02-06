@@ -3,9 +3,6 @@ import cv2
 class VideoCamera:
     def __init__(self):
         self.video = cv2.VideoCapture(1)
-        # Set base resolution to 1080p (1920x1080)
-        # OpenCV will automatically adjust to the closest supported resolution
-        # if the hardware does not support exactly 1080p.
         self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
         self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
