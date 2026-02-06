@@ -5,10 +5,11 @@ import time
 
 app = Flask(__name__)
 
+# --- ARDUINO SERIAL CONFIGURATION ---
 PORT = 'COM5' 
 try:
     ser = serial.Serial(PORT, 9600, timeout=0.1)
-    time.sleep(2)
+    time.sleep(2)  # Wait for Arduino to reboot
     print(f"Connected to Arduino on {PORT}")
 except Exception as e:
     print(f"Serial Error: {e}")
@@ -27,10 +28,29 @@ def video_feed():
 def control_robot(action, state):
     if ser and ser.is_open:
         cmd_map = {
+            # Standard Directions
+            #UP - U u
+            #DOWN - D d
+            #LEFT - L l
+            #RIGHT - R r
             'forward_start': 'U', 'forward_stop': 'u',
             'backward_start': 'D', 'backward_stop': 'd',
             'left_start': 'L', 'left_stop': 'l',
             'right_start': 'R', 'right_stop': 'r',
+            
+            # Diagonal Directions
+            #UPLEFT - Q q
+            #UPRIGHT - E e
+            #DOWNLEFT - Z z
+            #DOWNRIGHT - C c
+            'upleft_start': 'Q', 'upleft_stop': 'q',
+            'upright_start': 'E', 'upright_stop': 'e',
+            'downleft_start': 'Z', 'downleft_stop': 'z',
+            'downright_start': 'C', 'downright_stop': 'c',
+            
+            # Toggles
+            #HORN - H h
+            #LIGHT - N F
             'horn_start': 'H', 'horn_stop': 'h',
             'light_on': 'N', 'light_off': 'F'
         }

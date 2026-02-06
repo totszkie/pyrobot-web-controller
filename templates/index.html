@@ -2,18 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Instant Control Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        /* Ensures the buttons change color when the 'active' class is added via JS */
-        .btn.active-press {
-            background-color: #007bff !important; 
-            transform: scale(0.95);
-            box-shadow: inset 0 3px 5px rgba(0,0,0,0.2);
-        }
-    </style>
 </head>
 <body>
     <div class="main-container">
@@ -27,38 +19,43 @@
         </div>
 
         <div class="controls-wrapper">
-            <div class="dpad">
-                <button class="btn up" 
-                    onpointerdown="this.classList.add('active-press'); send('forward', 'start')" 
-                    onpointerup="this.classList.remove('active-press'); send('forward', 'stop')" 
-                    onpointerleave="this.classList.remove('active-press'); send('forward', 'stop')">
-                    <i class="fas fa-chevron-up"></i>
-                </button>
-                <button class="btn left" 
-                    onpointerdown="this.classList.add('active-press'); send('left', 'start')" 
-                    onpointerup="this.classList.remove('active-press'); send('left', 'stop')" 
-                    onpointerleave="this.classList.remove('active-press'); send('left', 'stop')">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="btn right" 
-                    onpointerdown="this.classList.add('active-press'); send('right', 'start')" 
-                    onpointerup="this.classList.remove('active-press'); send('right', 'stop')" 
-                    onpointerleave="this.classList.remove('active-press'); send('right', 'stop')">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                <button class="btn down" 
-                    onpointerdown="this.classList.add('active-press'); send('backward', 'start')" 
-                    onpointerup="this.classList.remove('active-press'); send('backward', 'stop')" 
-                    onpointerleave="this.classList.remove('active-press'); send('backward', 'stop')">
-                    <i class="fas fa-chevron-down"></i>
-                </button>
+            <div class="dpad-container">
+                <div class="dpad">
+    <button class="btn diag up-left" onpointerdown="this.classList.add('active-press'); send('upleft', 'start')" onpointerup="this.classList.remove('active-press'); send('upleft', 'stop')" onpointerleave="this.classList.remove('active-press'); send('upleft', 'stop')">
+        <i class="fas fa-caret-up"></i>
+    </button>
+    <button class="btn up" onpointerdown="this.classList.add('active-press'); send('forward', 'start')" onpointerup="this.classList.remove('active-press'); send('forward', 'stop')" onpointerleave="this.classList.remove('active-press'); send('forward', 'stop')">
+        <i class="fas fa-caret-up"></i>
+    </button>
+    <button class="btn diag up-right" onpointerdown="this.classList.add('active-press'); send('upright', 'start')" onpointerup="this.classList.remove('active-press'); send('upright', 'stop')" onpointerleave="this.classList.remove('active-press'); send('upright', 'stop')">
+        <i class="fas fa-caret-up"></i>
+    </button>
+
+    <button class="btn left" onpointerdown="this.classList.add('active-press'); send('left', 'start')" onpointerup="this.classList.remove('active-press'); send('left', 'stop')" onpointerleave="this.classList.remove('active-press'); send('left', 'stop')">
+        <i class="fas fa-caret-left"></i>
+    </button>
+    <div class="dpad-center-logo"><i class="fas fa-circle"></i></div>
+    <button class="btn right" onpointerdown="this.classList.add('active-press'); send('right', 'start')" onpointerup="this.classList.remove('active-press'); send('right', 'stop')" onpointerleave="this.classList.remove('active-press'); send('right', 'stop')">
+        <i class="fas fa-caret-right"></i>
+    </button>
+
+    <button class="btn diag down-left" onpointerdown="this.classList.add('active-press'); send('downleft', 'start')" onpointerup="this.classList.remove('active-press'); send('downleft', 'stop')" onpointerleave="this.classList.remove('active-press'); send('downleft', 'stop')">
+        <i class="fas fa-caret-down"></i>
+    </button>
+    <button class="btn down" onpointerdown="this.classList.add('active-press'); send('backward', 'start')" onpointerup="this.classList.remove('active-press'); send('backward', 'stop')" onpointerleave="this.classList.remove('active-press'); send('backward', 'stop')">
+        <i class="fas fa-caret-down"></i>
+    </button>
+    <button class="btn diag down-right" onpointerdown="this.classList.add('active-press'); send('downright', 'start')" onpointerup="this.classList.remove('active-press'); send('downright', 'stop')" onpointerleave="this.classList.remove('active-press'); send('downright', 'stop')">
+        <i class="fas fa-caret-down"></i>
+    </button>
+</div>
             </div>
 
-            <div class="action-buttons">
-                <button class="btn round horn" id="hornBtn" onclick="toggleHorn()">
+            <div class="action-buttons-container">
+                <button class="btn round horn-toggle" id="hornBtn" onclick="toggleHorn()">
                     <i id="hornIcon" class="fas fa-bullhorn"></i>
                 </button>
-                <button class="btn round light" id="lightBtn" onclick="toggleLight()">
+                <button class="btn round light-toggle" id="lightBtn" onclick="toggleLight()">
                     <i id="lightIcon" class="far fa-lightbulb"></i>
                 </button>
             </div>
@@ -68,11 +65,9 @@
     <script>
         let lightOn = false;
         let hornOn = false;
-
         function send(action, state) {
             fetch(`/control/${action}/${state}`, { method: 'GET', keepalive: true });
         }
-
         function toggleLight() {
             lightOn = !lightOn;
             const btn = document.getElementById('lightBtn');
@@ -87,7 +82,6 @@
                 send('light', 'off');
             }
         }
-
         function toggleHorn() {
             hornOn = !hornOn;
             const btn = document.getElementById('hornBtn');
