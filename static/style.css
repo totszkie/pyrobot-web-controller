@@ -1,0 +1,188 @@
+* {
+    box-sizing: border-box;
+    /* Prevents the 'blue box' highlight on mobile tap */
+    -webkit-tap-highlight-color: transparent;
+    /* Essential for low-latency touch response */
+    touch-action: none;
+}
+
+body {
+    background-color: #000;
+    margin: 0;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.main-container {
+    width: 95%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Video Feed Box */
+.video-window {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #222;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #333;
+}
+
+.label {
+    position: absolute;
+    color: #fff;
+    font-weight: bold;
+    font-size: clamp(1rem, 5vw, 2rem);
+    pointer-events: none;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Controls Grid */
+.controls-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+.dpad {
+    display: grid;
+    grid-template-areas: 
+        ". up ."
+        "left . right"
+        ". down .";
+    gap: 15px;
+}
+
+/* Button Appearance */
+.btn {
+    background-color: #fff;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    padding: 20px 30px;
+    cursor: pointer;
+    transition: background-color 0s; /* INSTANT color change */
+    user-select: none;
+}
+
+/* Instant darker color on press */
+.btn:active {
+    background-color: #666 !important;
+    color: #fff;
+}
+
+/* Button Positioning */
+.up { grid-area: up; }
+.left { grid-area: left; }
+.right { grid-area: right; }
+.down { grid-area: down; }
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.round {
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Light Toggle Persistence */
+.active-light {
+    background-color: #ffcc00 !important;
+    color: #000;
+}
+
+/* Responsive Scaling for Phones */
+@media (max-width: 600px) {
+    .controls-wrapper {
+        flex-direction: column;
+        gap: 40px;
+    }
+    .btn {
+        padding: 15px 25px;
+        font-size: 1.2rem;
+    }
+    .round {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* Responsive Video Feed Container */
+.video-window {
+    width: 100%;
+    max-width: 100vw; /* Ensures it doesn't overflow horizontal screens */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000; /* Black bars if aspect ratios don't match */
+    overflow: hidden;
+}
+
+.video-placeholder {
+    position: relative;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* The actual MJPEG/Video stream image */
+.feed-img {
+    width: 100%;
+    height: auto; 
+    max-height: 70vh; /* Limits height so controls stay visible on mobile */
+    object-fit: contain; /* Ensures the full capture is shown without cropping */
+    display: block;
+}
+
+/* Positioning the LIVE FEED label over the image */
+.label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 0, 0, 0.7);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+.active-horn {
+    background-color: #ff4444 !important; /* Example: turns red when active */
+    color: white;
+}
+
+.main-title {
+    text-align: center;
+    color: #fff;
+    margin: 0;
+    padding: 10px 0;
+    font-size: clamp(2rem, 8vw, 3.5rem); /* Responsive sizing */
+    letter-spacing: 5px;
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* Slight blue glow */
+    text-transform: uppercase;
+}

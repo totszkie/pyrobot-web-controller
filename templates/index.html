@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Instant Control Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Ensures the buttons change color when the 'active' class is added via JS */
+        .btn.active-press {
+            background-color: #007bff !important; 
+            transform: scale(0.95);
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1 class="main-title">PYROBOT</h1>
+
+        <div class="video-window">
+            <div class="video-placeholder">
+                <img src="{{ url_for('video_feed') }}" alt="" class="feed-img">
+                <div class="label">LIVE FEED</div>
+            </div>
+        </div>
+
+        <div class="controls-wrapper">
+            <div class="dpad">
+                <button class="btn up" 
+                    onpointerdown="this.classList.add('active-press'); send('forward', 'start')" 
+                    onpointerup="this.classList.remove('active-press'); send('forward', 'stop')" 
+                    onpointerleave="this.classList.remove('active-press'); send('forward', 'stop')">
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+                <button class="btn left" 
+                    onpointerdown="this.classList.add('active-press'); send('left', 'start')" 
+                    onpointerup="this.classList.remove('active-press'); send('left', 'stop')" 
+                    onpointerleave="this.classList.remove('active-press'); send('left', 'stop')">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="btn right" 
+                    onpointerdown="this.classList.add('active-press'); send('right', 'start')" 
+                    onpointerup="this.classList.remove('active-press'); send('right', 'stop')" 
+                    onpointerleave="this.classList.remove('active-press'); send('right', 'stop')">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="btn down" 
+                    onpointerdown="this.classList.add('active-press'); send('backward', 'start')" 
+                    onpointerup="this.classList.remove('active-press'); send('backward', 'stop')" 
+                    onpointerleave="this.classList.remove('active-press'); send('backward', 'stop')">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn round horn" id="hornBtn" onclick="toggleHorn()">
+                    <i id="hornIcon" class="fas fa-bullhorn"></i>
+                </button>
+                <button class="btn round light" id="lightBtn" onclick="toggleLight()">
+                    <i id="lightIcon" class="far fa-lightbulb"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lightOn = false;
+        let hornOn = false;
+
+        function send(action, state) {
+            fetch(`/control/${action}/${state}`, { method: 'GET', keepalive: true });
+        }
+
+        function toggleLight() {
+            lightOn = !lightOn;
+            const btn = document.getElementById('lightBtn');
+            const icon = document.getElementById('lightIcon');
+            if (lightOn) {
+                btn.classList.add('active-light');
+                icon.className = 'fas fa-lightbulb';
+                send('light', 'on');
+            } else {
+                btn.classList.remove('active-light');
+                icon.className = 'far fa-lightbulb';
+                send('light', 'off');
+            }
+        }
+
+        function toggleHorn() {
+            hornOn = !hornOn;
+            const btn = document.getElementById('hornBtn');
+            if (hornOn) {
+                btn.classList.add('active-horn');
+                send('horn', 'start');
+            } else {
+                btn.classList.remove('active-horn');
+                send('horn', 'stop');
+            }
+        }
+    </script>
+</body>
+</html>
