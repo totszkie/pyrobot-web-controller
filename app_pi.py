@@ -5,7 +5,8 @@ import time
 
 app = Flask(__name__)
 
-PORT = 'COM4' 
+# Changed from 'COM4' to the Raspberry Pi default USB serial port
+PORT = '/dev/ttyUSB0' 
 try:
     ser = serial.Serial(PORT, 9600, timeout=0.1)
     time.sleep(2)
